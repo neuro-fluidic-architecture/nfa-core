@@ -1,0 +1,119 @@
+syntax = "proto3";
+
+package nfa.intent.v1alpha;
+
+option go_package = "github.com/neuro-fluidic-architecture/nfa-core/go/protos";
+option rust_package = "nfa::intent::v1alpha";
+
+// 意图模式定义
+message IntentPattern {
+    message Pattern {
+        string action = 1;
+        map<string, Value> parameters = 2;
+    }
+
+    message Constraints {
+        repeated string required_parameters = 1;
+        map<string, ParameterConstraint> parameter_constraints = 2;
+    }
+
+    Pattern pattern = 1;
+    Constraints constraints = 2;
+}
+
+// 参数约束
+message ParameterConstraint {
+    oneof constraint {
+        StringConstraint string_constraint = 1;
+        NumberConstraint number_constraint = 2;
+        EnumConstraint enum_constraint = 3;
+    }
+}
+
+message StringConstraint {
+    optional uint32 min_length = 1;
+    optional uint32 max_length = 2;
+    optional string pattern = 3; // 正则表达式
+}
+
+message NumberConstraint {
+    optional double min = 1;
+    optional double max = 2;
+}
+
+message EnumConstraint {
+    repeated string values = 1;
+}
+
+// 意图契约
+message IntentContract {
+    string version = 1;
+    string kind = 2;
+    Metadata metadata = 3;
+    IntentSpec spec = 4;
+}
+
+message Metadata {
+    string name = 1;
+    string description = 2;
+    map<string, string> labels = 3;
+}
+
+message IntentSpec {
+    repeated IntentPattern intent_patterns = 1;
+    Implementation implementation = 2;
+    QualityOfService quality_of_service = 3;
+}
+
+message Implementation {
+    Endpoint endpoint = 1;
+    repeated ResourceRequirement resources = 2;
+}
+
+message Endpoint {
+    string type = 1;
+    oneof address {
+        GrpcAddress grpc = 2;
+        HttpAddress http = 3;
+    }
+}
+
+message GrpcAddress {
+    uint32 port = 1;
+    string procedure = 2;
+}
+
+message HttpAddress {
+    string url = 1;
+}
+
+message ResourceRequirement {
+    string type = 1;
+    string units = 2;
+    string kind = 3;
+}
+
+message QualityOfService {
+    string latency = 1;
+    string availability = 2;
+    string priority = 3;
+}
+
+// 通用值类型
+message Value {
+    oneof value {
+        string string_value = 1;
+        double number_value = 2;
+        bool bool_value = 3;
+        ListValue list_value = 4;
+        StructValue struct_value = 5;
+    }
+}
+
+message ListValue {
+    repeated Value values = 1;
+}
+
+message StructValue {
+    map<string, Value> fields = 1;
+}

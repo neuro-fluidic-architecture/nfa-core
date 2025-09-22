@@ -1,0 +1,35 @@
+version: v1alpha
+kind: IntentContract
+metadata:
+  name: com.example.translator
+  description: "A multi-language translation service"
+  labels:
+    category: "language"
+    provider: "example"
+spec:
+  intentPatterns:
+    - pattern: 
+        action: translate
+        content: @text
+        from: @sourceLanguage
+        to: @targetLanguage
+      constraints:
+        targetLanguage: ["zh", "en", "fr", "de", "es"]
+        
+  implementation:
+    endpoint:
+      type: grpc
+      port: 50052
+      procedure: TranslateText
+    resources:
+      - type: cpu
+        units: 0.5
+      - type: memory
+        units: 128Mi
+      - type: accelerator
+        kind: npu
+        units: 0.2
+
+  qualityOfService:
+    latency: 150ms
+    availability: 99.5%

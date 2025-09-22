@@ -1,0 +1,13 @@
+[package]
+name = "nfa-idl"
+version = "0.1.0"
+edition = "2025"
+
+[dependencies]
+serde = { workspace = true, features = ["derive"] }
+serde_yaml = "0.9"
+thiserror = { workspace = true }
+nfa-common = { path = "../nfa-common" }
+
+[dev-dependencies]
+tempfile = "3.3"
