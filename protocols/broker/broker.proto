@@ -1,0 +1,58 @@
+syntax = "proto3";
+
+package nfa.broker.v1alpha;
+
+option go_package = "github.com/neuro-fluidic-architecture/nfa-core/go/protos/broker";
+option rust_package = "nfa::broker::v1alpha";
+
+import "intent/v1alpha/intent.proto";
+
+service IntentBroker {
+    // Register a new intent service
+    rpc RegisterIntent(RegisterIntentRequest) returns (RegisterIntentResponse);
+    
+    // Match an intent to available services
+    rpc MatchIntent(IntentMatchRequest) returns (IntentMatchResponse);
+    
+    // Heartbeat from services
+    rpc Heartbeat(HeartbeatRequest) returns (HeartbeatResponse);
+    
+    // Unregister a service
+    rpc UnregisterIntent(UnregisterIntentRequest) returns (UnregisterIntentResponse);
+}
+
+message RegisterIntentRequest {
+    nfa.intent.v1alpha.IntentContract contract = 1;
+}
+
+message RegisterIntentResponse {
+    string service_id = 1;
+    bool success = 2;
+    string message = 3;
+}
+
+message IntentMatchRequest {
+    nfa.intent.v1alpha.IntentPattern pattern = 1;
+    nfa.intent.v1alpha.IntentContext context = 2;
+}
+
+message IntentMatchResponse {
+    repeated string service_ids = 1;
+}
+
+message HeartbeatRequest {
+    string service_id = 1;
+}
+
+message HeartbeatResponse {
+    bool acknowledged = 1;
+}
+
+message UnregisterIntentRequest {
+    string service_id = 1;
+}
+
+message UnregisterIntentResponse {
+    bool success = 1;
+    string message = 2;
+}

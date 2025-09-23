@@ -1,0 +1,31 @@
+[package]
+name = "nfa-uhalib"
+version = "0.1.0"
+edition = "2025"
+
+[dependencies]
+tokio = { workspace = true, features = ["full"] }
+serde = { workspace = true, features = ["derive"] }
+thiserror = { workspace = true }
+tracing = { workspace = true }
+async-trait = "0.1"
+nfa-common = { path = "../nfa-common" }
+
+[dependencies.libudev]
+version = "0.3"
+optional = true
+
+[dependencies.nvml-wrapper]
+version = "0.8"
+optional = true
+features = ["serde"]
+
+[features]
+default = ["udev", "nvidia"]
+udev = ["libudev"]
+nvidia = ["nvml-wrapper"]
+linux = []  # Linux-specific features
+windows = [] # Windows-specific features
+
+[dev-dependencies]
+tempfile = "3.3"

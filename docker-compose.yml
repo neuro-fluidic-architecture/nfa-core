@@ -1,0 +1,118 @@
+version: '3.8'
+
+services:
+  # Redis 服务（用于存储）
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 3
+
+  # PostgreSQL 服务（用于存储，可选）
+  postgres:
+    image: postgres:14-alpine
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: nfa
+      POSTGRES_USER: nfa
+      POSTGRES_PASSWORD: nfa_password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U nfa"]
+      interval: 5s
+      timeout: 3s
+      retries: 3
+
+  # Jaeger 服务（用于分布式追踪）
+  jaeger:
+    image: jaegertracing/all-in-one:1.40
+    ports:
+      - "16686:16686"  # UI
+      - "14268:14268"  # Collector
+      - "6831:6831/udp" # Agent
+
+  # Prometheus 服务（用于指标收集）
+  prometheus:
+    image: prom/prometheus:latest
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./config/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/console_templates'
+      - '--storage.tsdb.retention.time=200h'
+      - '--web.enable-lifecycle'
+
+  # Grafana 服务（用于指标可视化）
+  grafana:
+    image: grafana/grafana:latest
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./config/grafana-dashboards:/var/lib/grafana/dashboards
+    depends_on:
+      - prometheus
+
+  # NFA Broker 服务
+  nfa-broker:
+    build:
+      context: .
+      dockerfile: docker/broker.Dockerfile
+    ports:
+      - "50051:50051"  # gRPC
+      - "8080:8080"    # HTTP/健康检查
+    environment:
+      - NFA_BROKER_LISTEN_ADDRESS=0.0.0.0:50051
+      - NFA_STORAGE_BACKEND=redis
+      - NFA_REDIS_URL=redis://redis:6379
+      - NFA_REDIS_PREFIX=nfa
+      - NFA_LOG_LEVEL=info
+      - NFA_MONITORING_ENABLED=true
+      - NFA_TRACING_ENABLED=true
+      - NFA_JAEGER_ENDPOINT=http://jaeger:14268/api/traces
+    depends_on:
+      redis:
+        condition: service_healthy
+      jaeger:
+        condition: service_started
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  # NFA Runtime 示例服务
+  nfa-translator:
+    build:
+      context: .
+      dockerfile: docker/runtime.Dockerfile
+    environment:
+      - NFA_BROKER_ADDRESS=nfa-broker:50051
+      - NFA_SERVICE_CONTRACT_PATH=/app/translator.intent.yaml
+    volumes:
+      - ./examples/translator/translator.intent.yaml:/app/translator.intent.yaml
+    depends_on:
+      nfa-broker:
+        condition: service_healthy
+
+volumes:
+  redis_data:
+  postgres_data:
+  prometheus_data:
+  grafana_data:

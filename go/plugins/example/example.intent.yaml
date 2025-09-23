@@ -1,0 +1,30 @@
+version: v1alpha
+kind: IntentContract
+metadata:
+  name: com.example.processor
+  description: "An example intent service for processing text"
+  labels:
+    category: "example"
+    provider: "nfa"
+spec:
+  intentPatterns:
+    - pattern: 
+        action: process_example
+        input: @text
+      constraints:
+        input: { type: string, minLength: 1 }
+        
+  implementation:
+    endpoint:
+      type: grpc
+      port: 50052
+      procedure: ProcessExample
+    resources:
+      - type: cpu
+        units: 0.1
+      - type: memory
+        units: 64Mi
+
+  qualityOfService:
+    latency: 50ms
+    availability: 99.9%

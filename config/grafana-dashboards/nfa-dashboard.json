@@ -1,0 +1,102 @@
+{
+  "title": "NFA Core Dashboard",
+  "tags": ["nfa", "broker", "runtime"],
+  "timezone": "browser",
+  "panels": [
+    {
+      "id": 1,
+      "title": "Requests Total",
+      "type": "graph",
+      "targets": [
+        {
+          "expr": "rate(nfa_broker_requests_total[5m])",
+          "legendFormat": "{{instance}}"
+        }
+      ],
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 }
+    },
+    {
+      "id": 2,
+      "title": "Active Connections",
+      "type": "graph",
+      "targets": [
+        {
+          "expr": "nfa_broker_connections_active",
+          "legendFormat": "{{instance}}"
+        }
+      ],
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 }
+    },
+    {
+      "id": 3,
+      "title": "Registered Services",
+      "type": "stat",
+      "targets": [
+        {
+          "expr": "nfa_broker_services_registered",
+          "legendFormat": "Services"
+        }
+      ],
+      "gridPos": { "h": 4, "w": 6, "x": 0, "y": 8 }
+    },
+    {
+      "id": 4,
+      "title": "Request Duration",
+      "type": "graph",
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.95, rate(nfa_broker_request_duration_seconds_bucket[5m]))",
+          "legendFormat": "P95"
+        },
+        {
+          "expr": "histogram_quantile(0.99, rate(nfa_broker_request_duration_seconds_bucket[5m]))",
+          "legendFormat": "P99"
+        }
+      ],
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 12 }
+    },
+    {
+      "id": 5,
+      "title": "Error Rate",
+      "type": "graph",
+      "targets": [
+        {
+          "expr": "rate(nfa_broker_errors_total[5m])",
+          "legendFormat": "Errors"
+        }
+      ],
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 12 }
+    },
+    {
+      "id": 6,
+      "title": "Memory Usage",
+      "type": "graph",
+      "targets": [
+        {
+          "expr": "nfa_broker_memory_usage_bytes / 1024 / 1024",
+          "legendFormat": "MB"
+        }
+      ],
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 20 }
+    }
+  ],
+  "templating": {
+    "list": [
+      {
+        "name": "instance",
+        "type": "query",
+        "query": "label_values(nfa_broker_requests_total, instance)",
+        "refresh": 1,
+        "includeAll": true,
+        "multi": true
+      }
+    ]
+  },
+  "time": {
+    "from": "now-6h",
+    "to": "now"
+  },
+  "timepicker": {
+    "refresh_intervals": ["5s", "10s", "30s", "1m", "5m", "15m", "30m", "1h", "2h", "1d"]
+  }
+}

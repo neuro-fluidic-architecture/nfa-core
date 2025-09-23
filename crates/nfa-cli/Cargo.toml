@@ -1,0 +1,23 @@
+[package]
+name = "nfa-cli"
+version = "0.1.0"
+edition = "2025"
+
+[dependencies]
+clap = { version = "4.0", features = ["derive"] }
+tokio = { workspace = true, features = ["full"] }
+serde = { workspace = true, features = ["derive"] }
+serde_yaml = "0.9"
+thiserror = { workspace = true }
+tracing = { workspace = true }
+anyhow = { workspace = true }
+nfa-common = { path = "../nfa-common" }
+nfa-idl = { path = "../nfa-idl" }
+nfa-broker = { path = "../nfa-broker" }
+
+[dependencies.tonic]
+version = "0.9"
+features = ["transport"]
+
+[dependencies.prost]
+version = "0.11"

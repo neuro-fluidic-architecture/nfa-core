@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+package nfa.intent.v1alpha;
+
+option go_package = "github.com/neuro-fluidic-architecture/nfa-core/go/protos/intent/v1alpha";
+option rust_package = "nfa::intent::v1alpha";
+
+service ExampleService {
+    rpc ProcessExample(ExampleRequest) returns (ExampleResponse);
+}
+
+message ExampleRequest {
+    string input = 1;
+    map<string, string> parameters = 2;
+}
+
+message ExampleResponse {
+    string result = 1;
+    bool processed = 2;
+    map<string, string> metadata = 3;
+}

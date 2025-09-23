@@ -1,0 +1,28 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+scrape_configs:
+  - job_name: 'nfa-broker'
+    static_configs:
+      - targets: ['nfa-broker:8080']
+    metrics_path: /metrics
+    scrape_interval: 5s
+
+  - job_name: 'nfa-runtime'
+    static_configs:
+      - targets: ['nfa-translator:8080']
+    metrics_path: /metrics
+    scrape_interval: 5s
+
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+rule_files:
+  - alerts.yml
+
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets: []

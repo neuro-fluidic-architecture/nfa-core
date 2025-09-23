@@ -1,0 +1,104 @@
+syntax = "proto3";
+
+package nfa.scheduler.v1alpha;
+
+option go_package = "github.com/neuro-fluidic-architecture/nfa-core/go/protos/scheduler";
+option rust_package = "nfa::scheduler::v1alpha";
+
+import "intent/v1alpha/intent.proto";
+
+service SchedulerService {
+    // Schedule an intent request
+    rpc Schedule(ScheduleRequest) returns (ScheduleResponse);
+    
+    // Get resource status
+    rpc GetResourceStatus(ResourceStatusRequest) returns (ResourceStatusResponse);
+    
+    // Update scheduling policy
+    rpc UpdatePolicy(UpdatePolicyRequest) returns (UpdatePolicyResponse);
+}
+
+message ScheduleRequest {
+    nfa.intent.v1alpha.IntentRequest intent_request = 1;
+    ResourceRequest resource_request = 2;
+}
+
+message ScheduleResponse {
+    ResourceAllocation allocation = 1;
+    string error_message = 2;
+}
+
+message ResourceStatusRequest {
+    // Can be empty to get all nodes
+    repeated string node_ids = 1;
+}
+
+message ResourceStatusResponse {
+    repeated NodeResourceStatus nodes = 1;
+}
+
+message UpdatePolicyRequest {
+    SchedulingPolicy policy = 1;
+}
+
+message UpdatePolicyResponse {
+    bool success = 1;
+    string message = 2;
+}
+
+message ResourceRequest {
+    double cpu_units = 1;
+    uint64 memory_mb = 2;
+    AcceleratorRequest accelerator = 3;
+    uint64 network_bandwidth = 4;
+    uint64 max_latency_ms = 5;
+}
+
+message AcceleratorRequest {
+    string kind = 1;
+    double units = 2;
+    uint64 memory_mb = 3;
+}
+
+message ResourceAllocation {
+    string node_id = 1;
+    double cpu_units = 2;
+    uint64 memory_mb = 3;
+    AcceleratorAllocation accelerator = 4;
+    uint64 estimated_latency_ms = 5;
+    double cost_units = 6;
+}
+
+message AcceleratorAllocation {
+    string kind = 1;
+    double units = 2;
+    uint64 memory_mb = 3;
+}
+
+message NodeResourceStatus {
+    string node_id = 1;
+    double total_cpu = 2;
+    double used_cpu = 3;
+    uint64 total_memory = 4;
+    uint64 used_memory = 5;
+    repeated AcceleratorStatus accelerators = 6;
+    uint64 network_bandwidth = 7;
+    uint64 available_bandwidth = 8;
+    uint64 average_latency_ms = 9;
+}
+
+message AcceleratorStatus {
+    string kind = 1;
+    double total_units = 2;
+    double used_units = 3;
+    uint64 total_memory = 4;
+    uint64 used_memory = 5;
+}
+
+enum SchedulingPolicy {
+    SCHEDULING_POLICY_UNSPECIFIED = 0;
+    SCHEDULING_POLICY_PERFORMANCE_FIRST = 1;
+    SCHEDULING_POLICY_ENERGY_EFFICIENT = 2;
+    SCHEDULING_POLICY_LATENCY_SENSITIVE = 3;
+    SCHEDULING_POLICY_COST_OPTIMIZED = 4;
+}
