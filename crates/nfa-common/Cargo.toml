@@ -1,0 +1,72 @@
+[package]
+name = "nfa-common"
+version = "0.1.0"
+edition = "2024"
+description = "Common types, traits, and utilities for the Neuro-Fluidic Architecture"
+authors = ["NFA Contributors <contact@nfa.dev>"]
+license = "Apache-2.0"
+repository = "https://github.com/neuro-fluidic-architecture/nfa-core"
+keywords = ["nfa", "ai", "os", "intent", "scheduling"]
+categories = ["os", "asynchronous", "api-bindings"]
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+thiserror = "1.0"
+serde_yaml = "0.9"
+tokio = { version = "1.0", features = ["full"] }
+uuid = { version = "1.0", features = ["v4", "serde"] }
+chrono = { version = "0.4", features = ["serde"] }
+async-trait = "0.1"
+tracing = "0.1"
+prost = "0.11"
+bytes = "1.0"
+
+# Optional dependencies
+[features]
+default = ["full"]
+full = ["metrics", "cli", "testing"]
+metrics = ["prometheus", "metrics-exporter-prometheus"]
+cli = ["clap", "colored"]
+testing = ["proptest", "tokio-test"]
+
+[dependencies.prometheus]
+version = "0.13"
+optional = true
+
+[dependencies.metrics-exporter-prometheus]
+version = "0.10"
+optional = true
+
+[dependencies.clap]
+version = "4.0"
+features = ["derive"]
+optional = true
+
+[dependencies.colored]
+version = "2.0"
+optional = true
+
+[dependencies.proptest]
+version = "1.0"
+optional = true
+
+[dependencies.tokio-test]
+version = "0.4"
+optional = true
+
+[dev-dependencies]
+tempfile = "3.3"
+tokio = { version = "1.0", features = ["full", "test-util"] }
+serde_test = "1.0"
+
+[package.metadata.docs.rs]
+all-features = true
+targets = ["x86_64-unknown-linux-gnu"]
+
+
+[lib]
+name = "nfa_common"
+path = "src/lib.rs"

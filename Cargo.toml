@@ -8,11 +8,15 @@ members = [
     "crates/nfa-uhalib",
 ]
 
+resolver = "3"
+
 [workspace.dependencies]
 serde = { version = "1.0", features = ["derive"] }
 tokio = { version = "1.0", features = ["full"] }
+
 prost = "0.11"
 tonic = "0.9"
 thiserror = "1.0"
 tracing = "0.1"
 anyhow = "1.0"
+

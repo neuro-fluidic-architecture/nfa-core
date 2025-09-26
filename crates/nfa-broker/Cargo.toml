@@ -1,0 +1,96 @@
+[package]
+name = "nfa-broker"
+version = "0.1.0"
+edition = "2021"
+description = "Intent Broker for Neuro-Fluidic Architecture - Service registration, discovery, and matching"
+authors = ["NFA Contributors <contact@nfa.dev>"]
+license = "Apache-2.0"
+repository = "https://github.com/neuro-fluidic-architecture/nfa-core"
+keywords = ["nfa", "broker", "intent", "service-discovery", "microservices"]
+categories = ["network-programming", "asynchronous", "api-bindings"]
+
+[dependencies]
+tokio = { version = "1.0", features = ["full", "rt-multi-thread", "macros"] }
+tonic = { version = "0.9", features = ["transport"] }
+prost = "0.11"
+prost-types = "0.11"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+serde_yaml = "0.9"
+thiserror = "1.0"
+tracing = "0.1"
+tracing-subscriber = "0.3"
+async-trait = "0.1"
+uuid = { version = "1.0", features = ["v4", "serde"] }
+chrono = { version = "0.4", features = ["serde"] }
+bytes = "1.0"
+futures = "0.3"
+dashmap = "5.0"
+lru = "0.7"
+rand = "0.8"
+
+# 项目内部依赖
+nfa-common = { path = "../nfa-common" }
+nfa-idl = { path = "../nfa-idl" }
+
+# 存储后端可选依赖
+redis = { version = "0.23", features = ["tokio-comp"], optional = true }
+sqlx = { version = "0.7", features = ["postgres", "runtime-tokio", "macros"], optional = true }
+
+# 监控和指标
+prometheus = { version = "0.13", optional = true }
+metrics = { version = "0.20", optional = true }
+metrics-exporter-prometheus = { version = "0.10", optional = true }
+
+# 配置管理
+config = { version = "0.13", optional = true }
+toml = { version = "0.7", optional = true }
+
+# HTTP服务（用于健康检查和指标暴露）
+warp = { version = "0.3", optional = true }
+
+# 可选特性
+[features]
+default = ["full"]
+full = ["redis-backend", "postgres-backend", "monitoring", "config", "http"]
+minimal = []  # 最小化依赖，仅内存存储
+
+# 存储后端
+redis-backend = ["redis"]
+postgres-backend = ["sqlx"]
+
+# 监控和可观测性
+monitoring = ["prometheus", "metrics", "metrics-exporter-prometheus"]
+
+# 配置管理
+config = ["dep:config", "toml"]
+
+# HTTP服务
+http = ["warp"]
+
+# 开发特性
+dev = ["full", "tokio/rt", "tokio/macros"]
+
+[dev-dependencies]
+tempfile = "3.3"
+tokio = { version = "1.0", features = ["full", "test-util"] }
+proptest = "1.0"
+serial_test = "0.5"
+
+# 测试工具
+[dev-dependencies.tonic]
+version = "0.9"
+features = ["transport"]
+
+# 构建配置
+[package.metadata.docs.rs]
+all-features = true
+targets = ["x86_64-unknown-linux-gnu"]
+
+[[bin]]
+name = "nfa-broker"
+path = "src/main.rs"
+
+[lib]
+name = "nfa_broker"
+path = "src/lib.rs"

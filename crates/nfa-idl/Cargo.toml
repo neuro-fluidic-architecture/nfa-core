@@ -1,13 +1,20 @@
 [package]
 name = "nfa-idl"
 version = "0.1.0"
-edition = "2025"
+edition = "2024"
+description = "Intent Description Language for Neuro-Fluidic Architecture"
+authors = ["NFA Contributors <contact@nfa.dev>"]
+license = "Apache-2.0"
 
 [dependencies]
-serde = { workspace = true, features = ["derive"] }
+serde = { version = "1.0", features = ["derive"] }
 serde_yaml = "0.9"
-thiserror = { workspace = true }
+thiserror = "1.0"
 nfa-common = { path = "../nfa-common" }
 
 [dev-dependencies]
 tempfile = "3.3"
+
+[lib]
+name = "nfa_idl"
+path = "src/lib.rs"
